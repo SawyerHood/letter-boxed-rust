@@ -1,0 +1,8 @@
+[package]
+name = "letter"
+version = "0.1.0"
+authors = ["sawyerhood"]
+edition = "2018"
+
+[dependencies]
+rayon = "1.0.3"
