@@ -1,5 +1,6 @@
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
+use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::{self, BufReader};
@@ -7,21 +8,15 @@ use std::str;
 
 fn main() -> io::Result<()> {
     let lines = read_lines("words_alpha.txt");
-    let sides: Vec<HashSet<_>> = [
-        ['a', 's', 'c'],
-        ['k', 't', 'o'],
-        ['l', 'r', 'i'],
-        ['u', 'n', 'h'],
-    ]
-    .iter()
-    .cloned()
-    .map(|x| -> HashSet<_> { x.iter().cloned().map(|string| string.to_string()).collect() })
-    .collect();
 
-    let all_chars = sides
-        .iter()
-        .cloned()
-        .fold(HashSet::new(), |acc, x| acc.union(&x).cloned().collect());
+    let flat_chars: Vec<String> = env::args().skip(1).take(12).collect();
+
+    let sides: Vec<HashSet<_>> = flat_chars
+        .chunks(3)
+        .map(|chunk| chunk.iter().cloned().collect())
+        .collect();
+
+    let all_chars: HashSet<_> = flat_chars.into_iter().collect();
 
     let words = get_valid_words(&lines, &sides);
     let map = words_by_first_letter(&words);
@@ -51,7 +46,7 @@ fn read_lines(filename: &str) -> Vec<String> {
     f.lines().map(|str| str.unwrap()).collect()
 }
 
-fn get_valid_words<'a>(lines: &Vec<String>, sides: &Vec<HashSet<String>>) -> Vec<String> {
+fn get_valid_words(lines: &Vec<String>, sides: &Vec<HashSet<String>>) -> Vec<String> {
     lines
         .par_iter()
         .filter_map(|string| {
